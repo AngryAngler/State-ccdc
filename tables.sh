@@ -17,8 +17,8 @@ EOF
 
 
 for dir in INPUT OUTPUT; do
-  echo "$iptables -A $dir -p icmp -m icmp-type --icmp-type 0 -j ACCEPT" >> firewall
-  echo "$iptables -A $dir -p icmp -m icmp-type --icmp-type 8 -j ACCEPT" >> firewall
+  echo "$iptables -A $dir -p icmp -m icmp --icmp-type 0 -j ACCEPT" >> firewall
+  echo "$iptables -A $dir -p icmp -m icmp --icmp-type 8 -j ACCEPT" >> firewall
 done
 
 for port in $tcpin; do
