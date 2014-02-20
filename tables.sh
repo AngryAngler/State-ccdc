@@ -4,16 +4,16 @@ iptables=$(which iptables)
 tcpin=''
 tcpout=''
 
-<<1 cat << EOF > firewall
+cat << EOF > firewall
  $iptables -P INPUT DROP
  $iptables -P OUTPUT DROP
- $iptalbes -P FORWARD DROP
+ $iptables -P FORWARD DROP
  $iptables -N LOGGING
  $iptables -A INPUT -i lo -j ACCEPT
  $iptables -A INPUT -s 127.0.0.0/8 -j LOGGING
  $iptables -A OUTPUT -d 10.0.0.0/8 -m state --state NEW -j LOGGING
 EOF
-1
+
 
 for dir in "INPUT OUTPUT"; do
   echo "$iptables -A $dir -p icmp -m icmp-type --icmp=type 0 -j ACCEPT" >> firewall
@@ -30,5 +30,5 @@ for port in $tcpout; do
 $IPTABLES -A OUTPUT -p tcp -d --sport $port -m state --state NEW,ESTABLISHED -j ACCEPT" >> firewall
 done
 
-echo "$iptables -A LOGGING -j LOG --log-level 5 --log-prefix "Packet Dropped: "
+echo "$iptables -A LOGGING -j LOG --log-level 5 --log-prefix \"Packet Dropped:\"
 $iptables -A LOGGING -j DROP" >> firewall
