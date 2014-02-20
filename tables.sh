@@ -1,9 +1,10 @@
 #!/bin/bash
 
-iptables=$(which iptables)
+iptables=$(whereis iptables | cut -d' ' -f2)
 tcpin=''
 tcpout=''
-
+udpin=''
+udpout=''
 cat << EOF > firewall
  $iptables -P INPUT DROP
  $iptables -P OUTPUT DROP
@@ -15,19 +16,29 @@ cat << EOF > firewall
 EOF
 
 
-for dir in "INPUT OUTPUT"; do
-  echo "$iptables -A $dir -p icmp -m icmp-type --icmp=type 0 -j ACCEPT" >> firewall
-  echo "$iptables -A $dir -p icmp -m icmp-type --icmp-type 8 -j ACCPET" >> firewall
+for dir in INPUT OUTPUT; do
+  echo "$iptables -A $dir -p icmp -m icmp-type --icmp-type 0 -j ACCEPT" >> firewall
+  echo "$iptables -A $dir -p icmp -m icmp-type --icmp-type 8 -j ACCEPT" >> firewall
 done
 
 for port in $tcpin; do
-  echo "$iptables -A INPUT -p tcp -s --dport $port -m state --state NEW,ESTABLISHED -j ACCEPT
-$iptables -A OUTPUT -p tcp -d --sport $port -m state --state ESTABLISHED -j ACCEPT" >> firewall
+  echo "$iptables -A INPUT -p tcp --dport $port -m state --state NEW,ESTABLISHED -j ACCEPT
+$iptables -A OUTPUT -p tcp --sport $port -m state --state ESTABLISHED -j ACCEPT" >> firewall
 done
 
 for port in $tcpout; do
-  echo "$iptables -A INPUT -p tcp -s --dport $port -m state --state ESTABLISHED -j ACCEPT
-$iptables -A OUTPUT -p tcp -d --sport $port -m state --state NEW,ESTABLISHED -j ACCEPT" >> firewall
+  echo "$iptables -A INPUT -p tcp --dport $port -m state --state ESTABLISHED -j ACCEPT
+$iptables -A OUTPUT -p tcp --sport $port -m state --state NEW,ESTABLISHED -j ACCEPT" >> firewall
+done
+
+for port in $udpin; do
+  echo "$iptables -A INPUT -p tcp --dport $port -m state --state NEW,ESTABLISHED -j ACCEPT
+$iptables -A OUTPUT -p tcp --sport $port -m state --state ESTABLISHED -j ACCEPT" >> firewall
+done
+
+for port in $udpout; do
+  echo "$iptables -A INPUT -p tcp --dport $port -m state --state ESTABLISHED -j ACCEPT
+$iptables -A OUTPUT -p tcp --sport $port -m state --state NEW,ESTABLISHED -j ACCEPT" >> firewall
 done
 
 echo "$iptables -A LOGGING -j LOG --log-level 5 --log-prefix \"Packet Dropped:\"
