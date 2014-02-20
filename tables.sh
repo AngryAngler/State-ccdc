@@ -21,13 +21,13 @@ for dir in "INPUT OUTPUT"; do
 done
 
 for port in $tcpin; do
-  echo "$IPTABLES -A INPUT -p tcp -s --dport $port -m state --state NEW,ESTABLISHED -j ACCEPT
-$IPTABLES -A OUTPUT -p tcp -d --sport $port -m state --state ESTABLISHED -j ACCEPT" >> firewall
+  echo "$iptables -A INPUT -p tcp -s --dport $port -m state --state NEW,ESTABLISHED -j ACCEPT
+$iptables -A OUTPUT -p tcp -d --sport $port -m state --state ESTABLISHED -j ACCEPT" >> firewall
 done
 
 for port in $tcpout; do
-  echo "$IPTABLES -A INPUT -p tcp -s --dport $port -m state --state ESTABLISHED -j ACCEPT
-$IPTABLES -A OUTPUT -p tcp -d --sport $port -m state --state NEW,ESTABLISHED -j ACCEPT" >> firewall
+  echo "$iptables -A INPUT -p tcp -s --dport $port -m state --state ESTABLISHED -j ACCEPT
+$iptables -A OUTPUT -p tcp -d --sport $port -m state --state NEW,ESTABLISHED -j ACCEPT" >> firewall
 done
 
 echo "$iptables -A LOGGING -j LOG --log-level 5 --log-prefix \"Packet Dropped:\"
